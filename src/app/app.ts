@@ -8,5 +8,5 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('Keyboard_layout_generator_mfe');
+  protected readonly title = signal('Keyboard-layout-generator-mfe');
 }
