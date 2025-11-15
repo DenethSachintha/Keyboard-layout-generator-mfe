@@ -4,12 +4,17 @@ module.exports = withNativeFederation({
 
   name: 'Keyboard-layout-generator-mfe',
 
+  remotes: {
+    "Keyboard-layout-host-mfe": "http://localhost:4200/remoteEntry.js"
+  },
+
   exposes: {
     './Component': './src/app/app.ts',
   },
 
   shared: {
-    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    ...shareAll({ singleton: true, strictVersion: true }),
+    rxjs: { singleton: true },
   },
 
   skip: [
@@ -17,17 +22,12 @@ module.exports = withNativeFederation({
     'rxjs/fetch',
     'rxjs/testing',
     'rxjs/webSocket',
-    // Add further packages you don't need at runtime
   ],
 
-  // Please read our FAQ about sharing libs:
-  // https://shorturl.at/jmzH0
-
   features: {
-    // New feature for more performance and avoiding
-    // issues with node libs. Comment this out to
-    // get the traditional behavior:
     ignoreUnusedDeps: true
   }
-  
+
 });
+
+

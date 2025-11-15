@@ -1,5 +1,11 @@
-      <p-button icon="pi pi-bars"></p-button>
-      <p-button icon="pi pi-bars"></p-button>
-      <p-button icon="pi pi-bars"></p-button>
-      <p-button icon="pi pi-bars"></p-button>
-Keyboard-layout-generator-mfe
+<h2>Remote Microfrontend</h2>
+
+<div class="card">
+  <p><strong>Message from Host:</strong></p>
+
+  <pre *ngIf="hostMessage as msg">
+{{ msg | json }}
+  </pre>
+
+  <p *ngIf="!hostMessage">Waiting for data...</p>
+</div>
