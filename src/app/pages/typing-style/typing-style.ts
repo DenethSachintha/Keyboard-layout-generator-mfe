@@ -1,96 +1,142 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ToggleButtonModule } from 'primeng/togglebutton';
-import { ChipModule } from 'primeng/chip';
-import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
-
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface OptionItem {
-  id: number;
-  name: string;
-  categoryId: number;
-  model: boolean;
-  relatedIds: number[];
-}
+import { ImportsModule } from '../../imports';
 
 @Component({
   selector: 'app-typing-style',
   standalone: true,
-  imports: [CommonModule, FormsModule, ToggleButtonModule, ChipModule, ButtonModule],
+  imports: [CommonModule, FormsModule, ImportsModule],
   templateUrl: './typing-style.html',
   styleUrls: ['./typing-style.scss']
 })
 export class TypingStyle {
 
-  categories: Category[] = [
-    { id: 1, name: 'Genre' },
-    { id: 2, name: 'Language' },
-    { id: 3, name: 'Rating' }
-  ];
-
   allOptions: OptionItem[] = [
-    { id: 101, name: 'Action', categoryId: 1, model: false, relatedIds: [201, 301] },
-    { id: 102, name: 'Drama', categoryId: 1, model: false, relatedIds: [202] },
-    { id: 103, name: 'Horror', categoryId: 1, model: false, relatedIds: [] },
+    { id: 101, name: 'Typist', categoryId: 1, model: false, relatedIds: [201, 301] },
+    { id: 102, name: 'Programmer', categoryId: 1, model: false, relatedIds: [505, 506, 507, 508] },
 
     { id: 201, name: 'English', categoryId: 2, model: false, relatedIds: [] },
     { id: 202, name: 'Sinhala', categoryId: 2, model: false, relatedIds: [] },
 
-    { id: 301, name: 'PG-13', categoryId: 3, model: false, relatedIds: [] },
-    { id: 302, name: 'R Rated', categoryId: 3, model: false, relatedIds: [] }
+    { id: 301, name: 'Speed', categoryId: 3, model: false, relatedIds: [] },
+    { id: 302, name: 'Accuracy', categoryId: 3, model: false, relatedIds: [] },
+
+    { id: 505, name: 'Python', categoryId: 5, model: false, relatedIds: [] },
+    { id: 506, name: 'JavaScript', categoryId: 5, model: false, relatedIds: [] },
+    { id: 507, name: 'HTML', categoryId: 5, model: false, relatedIds: [] },
+    { id: 508, name: 'CSS', categoryId: 5, model: false, relatedIds: [] },
   ];
 
-  visibleOptions: OptionItem[] = structuredClone(this.allOptions);
+  /** Options shown to user — WITHOUT related ones initially */
+  visibleOptions: OptionItem[] = [];
+
+  /** Only contains user-selected items */
   selectedOptions: OptionItem[] = [];
 
+  /** Related options activated by selected parents */
+  activeRelated: Set<number> = new Set();
+
+  constructor() {
+    this.initializeVisibleOptions();
+  }
+
+  /** Hide ALL related options at startup */
+  initializeVisibleOptions() {
+    const relatedIds = new Set<number>();
+
+    this.allOptions.forEach(o =>
+      o.relatedIds.forEach(id => relatedIds.add(id))
+    );
+
+    // Only include non-related root options
+    this.visibleOptions = this.allOptions.filter(o => !relatedIds.has(o.id));
+  }
+
+  /** Toggle logic */
   onToggle(option: OptionItem) {
     if (option.model) {
-      this.addSelection(option);
+      this.selectOption(option);
     } else {
-      this.removeSelection(option);
+      this.unselectOption(option);
     }
   }
 
-  addSelection(option: OptionItem) {
+  /** Select an option */
+  selectOption(option: OptionItem) {
     if (!this.selectedOptions.some(o => o.id === option.id)) {
       this.selectedOptions.push(option);
     }
 
-    // Hide other options in the same category
+    // Hide other items in the same category
     this.visibleOptions = this.visibleOptions.filter(
       o => o.categoryId !== option.categoryId || o.id === option.id
     );
+
+    // Show related children (NOT selected)
+    option.relatedIds.forEach(id => this.activeRelated.add(id));
+
+    this.updateVisibleOptions();
   }
 
-  removeSelection(option: OptionItem) {
+  /** Unselect option */
+  unselectOption(option: OptionItem) {
     option.model = false;
+
+    // Remove from selected list
     this.selectedOptions = this.selectedOptions.filter(o => o.id !== option.id);
 
-    // Restore category options
-    const stillSelectedInCategory = this.selectedOptions.some(
-      o => o.categoryId === option.categoryId
-    );
+    // Remove related visibility for this parent
+    option.relatedIds.forEach(id => this.activeRelated.delete(id));
 
-    if (!stillSelectedInCategory) {
-      const catOptions = this.allOptions.filter(o => o.categoryId === option.categoryId);
-      catOptions.forEach(o => {
-        const clone = { ...o, model: false };
-        if (!this.visibleOptions.some(v => v.id === clone.id)) {
-          this.visibleOptions.push(clone);
+    // Restore category items only if nothing else in that category is selected
+    const stillHasSelected = this.selectedOptions.some(o => o.categoryId === option.categoryId);
+
+    if (!stillHasSelected) {
+      const group = this.allOptions.filter(o => o.categoryId === option.categoryId);
+
+      group.forEach(o => {
+        if (!this.visibleOptions.some(v => v.id === o.id)) {
+          this.visibleOptions.push({ ...o, model: false });
         }
       });
     }
 
-    this.visibleOptions = [...this.visibleOptions];
+    this.updateVisibleOptions();
   }
 
-  unselectByChip(option: OptionItem) {
-    option.model = false;
-    this.removeSelection(option);
+  /** Control final visibility set */
+  updateVisibleOptions() {
+    const baseVisible = new Set<number>();
+
+    // Always show selected items + their categories
+    this.selectedOptions.forEach(s => baseVisible.add(s.id));
+
+    // Show related items
+    this.activeRelated.forEach(id => baseVisible.add(id));
+
+    // Show normal category items that are not restricted
+    this.allOptions.forEach(opt => {
+      const anySelectedInCat = this.selectedOptions.some(s => s.categoryId === opt.categoryId);
+
+      if (!anySelectedInCat && !this.activeRelated.has(opt.id)) {
+        // This is a root category item
+        baseVisible.add(opt.id);
+      }
+    });
+
+    // Convert to visibleOptions
+    this.visibleOptions = this.allOptions
+      .filter(o => baseVisible.has(o.id))
+      .map(o => ({ ...o, model: o.model }));
+  }
+
+  /** Chip unselect */
+  unselectByChip(opt: OptionItem) {
+    const real = this.allOptions.find(o => o.id === opt.id);
+    if (real) {
+      real.model = false;
+      this.unselectOption(real);
+    }
   }
 }

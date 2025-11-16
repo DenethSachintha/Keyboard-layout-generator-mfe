@@ -1,0 +1,18 @@
+<div class="keyboard-container card flex flex-col gap-2 p-4 justify-center items-center">
+  <div *ngFor="let row of keyboardRows" class="keyboard-row flex gap-2 justify-center">
+    <div
+      *ngFor="let key of row"
+      [pBind]="getKeyBinding(key)()"
+      [pTooltip]="key.virtualKey + ' (' + key.id + ')'"
+      class="relative flex items-center justify-center w-10 h-12 rounded-md text-lg font-semibold key"
+    >
+      <!-- Shifted symbol -->
+      <span *ngIf="shouldShowShiftSymbol(key)" class="absolute top-1 left-1 text-xs opacity-70">
+        {{ key.virtualShift }}
+      </span>
+
+      <!-- Main key label -->
+      <span>{{ key.virtualKey }}</span>
+    </div>
+  </div>
+</div>

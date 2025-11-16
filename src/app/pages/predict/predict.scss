@@ -1,0 +1,50 @@
+.predict-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 15px;
+  background: var(--surface-card);
+  border-radius: 10px;
+}
+
+.controls {
+  background: var(--surface-ground);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.label {
+  margin-left: 5px;
+}
+
+.steps-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.generate-btn {
+  margin-left: auto;
+}
+
+.results {
+  background: var(--surface-100);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.layout-box {
+  background: #1e1e1e;
+  color: #00ff9c;
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+}
+
+.score-text {
+  font-size: 18px;
+  margin-top: 10px;
+}

@@ -1,1 +1,53 @@
-<p>predict works!</p>
+<div class="predict-container">
+
+  <h1>Keyboard Layout Generator</h1>
+
+  <div class="controls">
+
+    <!-- Radio buttons for Start QWERTY -->
+    <div class="flex items-center gap-4 mb-4">
+      <div class="flex items-center">
+        <p-radiobutton
+          name="startLayout"
+          value="true"
+          [(ngModel)]="startQwerty"
+          [binary]="true"
+          inputId="startQwertyYes">
+        </p-radiobutton>
+        <label for="startQwertyYes" class="ml-2">Start from QWERTY</label>
+      </div>
+
+      <div class="flex items-center">
+        <p-radiobutton
+          name="startLayout"
+          value="false"
+          [(ngModel)]="startQwerty"
+          [binary]="true"
+          inputId="startQwertyNo">
+        </p-radiobutton>
+        <label for="startQwertyNo" class="ml-2">Custom Start</label>
+      </div>
+    </div>
+
+    <!-- Steps input -->
+    <div class="steps-input mb-4">
+      <label>Steps:</label>
+      <p-inputNumber [(ngModel)]="steps" [min]="50" [max]="1000"></p-inputNumber>
+    </div>
+
+    <button pButton
+            label="Generate Layout"
+            (click)="generate()"
+            [loading]="loading"
+            class="generate-btn">
+    </button>
+
+  </div>
+
+  <div class="results" *ngIf="layout">
+    <h2>Optimized Layout</h2>
+    <pre class="layout-box">{{ layout }}</pre>
+    <p class="score-text">Score: <span>{{ score }}</span></p>
+  </div>
+
+</div>
