@@ -51,4 +51,10 @@ body {
     width: 100%;
 }
         
-    
+.selected-chip {
+  background: var(--p-primary-300) !important;
+  color: var(--p-neutral-800) !important;
+}
+.p-chip-remove-icon {
+    color: var(--p-neutral-800) !important;
+}

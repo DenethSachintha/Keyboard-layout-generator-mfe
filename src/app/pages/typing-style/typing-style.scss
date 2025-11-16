@@ -1,0 +1,19 @@
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+  gap: 1rem;
+  width: 100%;
+}
+
+.toggle {
+  min-width: 150px !important;
+}
+
+

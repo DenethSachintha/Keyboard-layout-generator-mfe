@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { ImportsModule } from './imports';
 import { PrimeNG } from 'primeng/config';
+import { Workflow } from "./pages/workflow/workflow";
 
 @Component({
   selector: 'app-root',
-  imports: [ImportsModule],
+  imports: [ImportsModule, Workflow],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

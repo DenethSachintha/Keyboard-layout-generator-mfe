@@ -1,0 +1,14 @@
+
+<div class="text-center mb-4 text-xl font-semibold">Choose your interests</div>
+<div class="flex flex-wrap justify-center gap-4">
+    <div class="chip-row" *ngIf="selectedOptions.length">
+        <p-chip *ngFor="let item of selectedOptions" [label]="item.name" [removable]="true"
+            (onRemove)="unselectByChip(item)" class="chip selected-chip"></p-chip>
+    </div>
+    <div class="options-grid">
+        <p-toggleButton *ngFor="let option of visibleOptions" [(ngModel)]="option.model" [onLabel]="option.name"
+            [offLabel]="option.name" class="toggle" (onChange)="onToggle(option)">
+        </p-toggleButton>
+
+    </div>
+</div>

@@ -1,0 +1,61 @@
+<p-stepper [value]="1" class="basis-[50rem]">
+    <p-step-list class="card"
+        [style]="{ 'border-radius': '3rem', 'padding': '1rem 1.5rem 1rem 1.5rem', 'margin-bottom': '1rem' }">
+        <p-step [value]="1">Typing Style</p-step>
+        <p-step [value]="2">Predict</p-step>
+        <p-step [value]="3">Customize</p-step>
+        <p-step [value]="4">Generate</p-step>
+    </p-step-list>
+    <p-step-panels>
+        <p-step-panel [value]="1">
+            <ng-template #content let-activateCallback="activateCallback">
+                <div class="card">
+                    <app-typing-style></app-typing-style>
+                    <div class="flex pt-6 justify-end">
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                            (onClick)="activateCallback(2)" />
+                    </div>
+                </div>
+            </ng-template>
+        </p-step-panel>
+
+        <p-step-panel [value]="2">
+            <ng-template #content let-activateCallback="activateCallback">
+                <div class="card">
+                    <app-predict></app-predict>
+                    <div class="flex pt-6 justify-between">
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left"
+                            (onClick)="activateCallback(1)" />
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                            (onClick)="activateCallback(3)" />
+                    </div>
+                </div>
+            </ng-template>
+        </p-step-panel>
+
+        <p-step-panel [value]="3">
+            <ng-template #content let-activateCallback="activateCallback">
+                <div class="card">
+                    <app-customize></app-customize>
+                    <div class="flex pt-6 justify-between">
+                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left"
+                            (onClick)="activateCallback(2)" />
+                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                            (onClick)="activateCallback(4)" />
+                    </div>
+                </div>
+            </ng-template>
+        </p-step-panel>
+        <p-step-panel [value]="4">
+            <ng-template #content let-activateCallback="activateCallback">
+                <div class="card">
+                    <app-generate></app-generate>
+                    <div class="flex pt-6 justify-start">
+                        <p-button label="Back" icon="pi pi-arrow-left" iconPos="right"
+                            (onClick)="activateCallback(3)" />
+                    </div>
+                </div>
+            </ng-template>
+        </p-step-panel>
+    </p-step-panels>
+</p-stepper>
