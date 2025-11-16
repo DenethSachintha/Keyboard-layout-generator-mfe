@@ -49,5 +49,7 @@
     <pre class="layout-box">{{ layout }}</pre>
     <p class="score-text">Score: <span>{{ score }}</span></p>
   </div>
-
+  @if (updatedKeymap().length) {
+    <app-layout-view [keyMapping]="updatedKeymap"></app-layout-view>
+  }
 </div>

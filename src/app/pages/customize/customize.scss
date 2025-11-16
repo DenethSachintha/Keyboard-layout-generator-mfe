@@ -1,0 +1,53 @@
+.keyboard-container {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  width: fit-content;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  pointer-events: auto;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  padding: 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  border: 1px solid var(--p-button-outlined-contrast-border-color);
+  min-width: 2.4rem;
+  height: 2.4rem;
+  transition: all 0.2s ease;
+}
+
+.key[data-key="14"] { min-width: 5.5rem; } /* Backspace */
+.key[data-key="15"] { min-width: 4rem; }  /* Tab */
+.key[data-key="29"] { min-width: 5rem; }  /* Caps */
+.key[data-key="41"] { min-width: 5rem; }  /* Enter */
+.key[data-key="42"], 
+.key[data-key="53"] { min-width: 6rem; }  /* Shift */
+.key[data-key="57"] { min-width: 15rem; } /* Space */
+.key[data-key="54"],
+.key[data-key="55"],
+.key[data-key="56"],
+.key[data-key="58"],
+.key[data-key="59"],
+.key[data-key="60"],
+.key[data-key="61"] { min-width: 3.5rem; }
+
+.key:active {
+  transform: translateY(2px);
+}

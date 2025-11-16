@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ImportsModule } from '../../imports';
+import { OptionItem } from '../../models/option-item';
+import { StyleOptionService } from '../services/style-option-service';
 
 @Component({
   selector: 'app-typing-style',
@@ -10,36 +12,42 @@ import { ImportsModule } from '../../imports';
   templateUrl: './typing-style.html',
   styleUrls: ['./typing-style.scss']
 })
-export class TypingStyle {
+export class TypingStyle implements OnInit{
 
-  allOptions: OptionItem[] = [
-    { id: 101, name: 'Typist', categoryId: 1, model: false, relatedIds: [201, 301] },
-    { id: 102, name: 'Programmer', categoryId: 1, model: false, relatedIds: [505, 506, 507, 508] },
-
-    { id: 201, name: 'English', categoryId: 2, model: false, relatedIds: [] },
-    { id: 202, name: 'Sinhala', categoryId: 2, model: false, relatedIds: [] },
-
-    { id: 301, name: 'Speed', categoryId: 3, model: false, relatedIds: [] },
-    { id: 302, name: 'Accuracy', categoryId: 3, model: false, relatedIds: [] },
-
-    { id: 505, name: 'Python', categoryId: 5, model: false, relatedIds: [] },
-    { id: 506, name: 'JavaScript', categoryId: 5, model: false, relatedIds: [] },
-    { id: 507, name: 'HTML', categoryId: 5, model: false, relatedIds: [] },
-    { id: 508, name: 'CSS', categoryId: 5, model: false, relatedIds: [] },
-  ];
-
-  /** Options shown to user — WITHOUT related ones initially */
+  allOptions: OptionItem[] = [];
+  isLoading: boolean = true;
   visibleOptions: OptionItem[] = [];
-
-  /** Only contains user-selected items */
   selectedOptions: OptionItem[] = [];
-
-  /** Related options activated by selected parents */
   activeRelated: Set<number> = new Set();
 
-  constructor() {
-    this.initializeVisibleOptions();
-  }
+constructor(
+  private styleOptionService: StyleOptionService,
+  private cdr: ChangeDetectorRef
+) {}
+ngOnInit(): void {
+  this.loadOptionsFromApi();
+}
+loadOptionsFromApi() {
+  this.styleOptionService.getAllOptions().subscribe({
+    next: (options) => {
+
+      this.allOptions = options.map(o => ({ ...o, model: false }));
+      this.allOptions = [...this.allOptions];
+
+      this.initializeVisibleOptions();
+
+      console.log('Loaded options:', this.allOptions);
+
+      /** 🔥 Force Angular to detect UI changes */
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Failed to load options:', err);
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
 
   /** Hide ALL related options at startup */
   initializeVisibleOptions() {
@@ -51,6 +59,11 @@ export class TypingStyle {
 
     // Only include non-related root options
     this.visibleOptions = this.allOptions.filter(o => !relatedIds.has(o.id));
+
+    // Force Angular render
+    this.visibleOptions = [...this.visibleOptions];
+
+    this.isLoading = false;
   }
 
   /** Toggle logic */
@@ -83,13 +96,10 @@ export class TypingStyle {
   unselectOption(option: OptionItem) {
     option.model = false;
 
-    // Remove from selected list
     this.selectedOptions = this.selectedOptions.filter(o => o.id !== option.id);
 
-    // Remove related visibility for this parent
     option.relatedIds.forEach(id => this.activeRelated.delete(id));
 
-    // Restore category items only if nothing else in that category is selected
     const stillHasSelected = this.selectedOptions.some(o => o.categoryId === option.categoryId);
 
     if (!stillHasSelected) {
@@ -109,10 +119,7 @@ export class TypingStyle {
   updateVisibleOptions() {
     const baseVisible = new Set<number>();
 
-    // Always show selected items + their categories
     this.selectedOptions.forEach(s => baseVisible.add(s.id));
-
-    // Show related items
     this.activeRelated.forEach(id => baseVisible.add(id));
 
     // Show normal category items that are not restricted

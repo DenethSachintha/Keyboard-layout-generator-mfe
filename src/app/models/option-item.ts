@@ -1,4 +1,4 @@
-interface OptionItem {
+export interface OptionItem {
   id: number;
   name: string;
   categoryId: number;
