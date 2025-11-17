@@ -1,7 +1,12 @@
-import { Component, computed, effect, OnInit, signal } from '@angular/core';
-import { WorkflowService } from '../../common/services/workflow.service';
-import { KeyMapping } from '../../models/key-mapping';
+import { Component, signal, OnInit, computed } from '@angular/core';
 import { ImportsModule } from '../../imports';
+import { WorkflowService } from '../../common/services/workflow.service';
+
+export interface KeyMapping {
+  id: number;
+  systemKey: string;
+  virtualKey: string;
+}
 
 @Component({
   selector: 'app-customize',
@@ -11,98 +16,89 @@ import { ImportsModule } from '../../imports';
   styleUrl: './customize.scss'
 })
 export class Customize implements OnInit {
-  isShiftActive = false;
-  expectedKeyId: number | null = null;
 
-  activeKeys = signal<Record<number, boolean>>({});
-  keyMapping = signal<KeyMapping[] | null>(null);
+  keyMapping = signal<KeyMapping[]>([]);
+  draggingKeyIndex: number | null = null;
 
-  constructor(private workflow: WorkflowService) {
-    effect(() => {
-      const keys = this.keyMapping();
-
-      if (!keys || keys.length === 0) return;  // ⛔ Prevent null errors here
-
-      this.processKeyMapping(keys);
-      console.log('🔄 Reactive keyMapping update detected:', keys);
-    });
-  }
+  constructor(private workflow: WorkflowService) {}
 
   ngOnInit(): void {
-    const current = this.keyMapping();
-
-    if (current && current.length > 0) {
-      console.log("📌 Processing keyMapping on init:", current);
-      this.processKeyMapping(current);
-    }
-
-    this.workflow.keymap$.subscribe(updatedMap => {
-      console.log("🔥 Updated Keymap from WorkflowService:", updatedMap);
-      this.keyMapping.set(updatedMap);
+    this.workflow.keymap$.subscribe((keys: KeyMapping[]) => {
+      if (!keys || keys.length === 0) return;
+      this.keyMapping.set(keys);
+      console.log('Loaded keyMapping:', keys);
     });
   }
 
-  private processKeyMapping(keys: KeyMapping[]): void {
-    const map: Record<number, boolean> = {};
-    keys.forEach(key => (map[key.id] = false));
-    this.activeKeys.set(map);
-  }
-
-  // ⛔ FIX: Prevent errors until mapping exists
-  get keyboardRows(): KeyMapping[][] {
+  /** Split keys into rows */
+  keyboardRows = computed(() => {
     const keys = this.keyMapping();
-    if (!keys || keys.length === 0) return [];   // 🔥 Crucial fix
+    if (!keys || keys.length === 0) return [];
 
+    // Example row pattern: 14-14-13-12-8 etc.
     const rowBreaks = [14, 28, 41, 53, 61];
     const rows: KeyMapping[][] = [];
-
     let start = 0;
     for (const end of rowBreaks) {
       rows.push(keys.slice(start, end));
       start = end;
     }
-    return rows;
-  }
-
-  highlightKey(key: string, state: boolean) {
-    const mapping = this.keyMapping();
-    if (!mapping) return;  // ⛔ Fix
-
-    const found = mapping.find(k => k.systemKey.toLowerCase() === key.toLowerCase());
-    if (found) {
-      const active = this.activeKeys();
-      this.activeKeys.set({ ...active, [found.id]: state });
+    // Push remaining keys if any
+    if (start < keys.length) {
+      rows.push(keys.slice(start));
     }
+    return rows;
+  });
+
+  /** -----------------------------
+   * Drag & Drop logic
+   * -----------------------------
+   */
+
+  onDragStart(event: DragEvent, flatIndex: number) {
+    this.draggingKeyIndex = flatIndex;
+    event.dataTransfer?.setData('text/plain', flatIndex.toString());
+    event.dataTransfer!.effectAllowed = 'move';
+    console.log('Dragging started:', flatIndex);
   }
 
-  shouldShowShiftSymbol(key: KeyMapping): boolean {
-    return (
-      !!key.virtualShift &&
-      !/^[a-zA-Z]$/.test(key.virtualKey) &&
-      key.virtualKey.trim() !== ''
-    );
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
   }
 
-  getKeyBinding(key: KeyMapping) {
-    return computed(() => {
-      const active = !!this.activeKeys()[key.id];
-      const expected = this.expectedKeyId === key.id;
-      const shift =
-        this.isShiftActive &&
-        (key.systemKey === 'Shift' || key.virtualKey === 'Shift');
+  onDragEnter(event: DragEvent, flatIndex: number) {
+    event.preventDefault();
+  }
 
-      const bg = expected
-        ? 'bg-yellow-400 text-black'
-        : active || shift
-        ? 'bg-primary text-primary-contrast'
-        : 'bg-surface-100 text-surface-700 dark:bg-surface-800 dark:text-surface-200';
+  onDrop(event: DragEvent, dropIndex: number) {
+    event.preventDefault();
+    const fromIndex = this.draggingKeyIndex;
+    if (fromIndex === null || fromIndex === dropIndex) return;
 
-      return {
-        class: ['key', bg],
-        style: { transition: 'all 0.2s ease', cursor: 'pointer' },
-        'data-key': key.id,
-        'aria-label': key.virtualKey,
-      };
-    });
+    const keys = [...this.keyMapping()];
+    [keys[fromIndex], keys[dropIndex]] = [keys[dropIndex], keys[fromIndex]];
+    this.keyMapping.set(keys);
+
+    console.log('Dropped keys:', keys);
+    this.draggingKeyIndex = null;
+  }
+
+  onDragEnd() {
+    this.draggingKeyIndex = null;
+  }
+
+  trackById(index: number, item: KeyMapping) {
+    return item.id;
+  }
+
+  /** Compute flat index for drag-drop across rows */
+  flatIndex(rowIndex: number, keyIndex: number): number {
+    const rows = this.keyboardRows();
+    let index = 0;
+    for (let i = 0; i < rowIndex; i++) {
+      index += rows[i].length;
+    }
+    return index + keyIndex;
   }
 }

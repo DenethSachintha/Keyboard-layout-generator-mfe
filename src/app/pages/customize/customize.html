@@ -1,16 +1,17 @@
-<div class="keyboard-container card flex flex-col gap-2 p-4 justify-center items-center">
-  <div *ngFor="let row of keyboardRows" class="keyboard-row flex gap-2 justify-center">
+<div class="keyboard-container flex flex-col gap-2 p-4 justify-center items-center">
+  <div *ngFor="let row of keyboardRows(); let rowIndex = index" class="keyboard-row flex gap-2 justify-center">
     <div
-      *ngFor="let key of row"
-      [pBind]="getKeyBinding(key)()"
-      [pTooltip]="key.virtualKey + ' (' + key.id + ')'"
-      class="relative flex items-center justify-center w-10 h-12 rounded-md text-lg font-semibold key"
+      *ngFor="let key of row; let keyIndex = index; trackBy: trackById"
+      class="key p-2 rounded border text-center cursor-move"
+      draggable="true"
+      (dragstart)="onDragStart($event, flatIndex(rowIndex, keyIndex))"
+      (dragover)="onDragOver($event)"
+      (dragenter)="onDragEnter($event, flatIndex(rowIndex, keyIndex))"
+      (drop)="onDrop($event, flatIndex(rowIndex, keyIndex))"
+      (dragend)="onDragEnd()"
+      [attr.data-key]="key.id" 
     >
-      <span *ngIf="shouldShowShiftSymbol(key)" class="absolute top-1 left-1 text-xs opacity-70">
-        {{ key.virtualShift }}
-      </span>
-
-      <span>{{ key.virtualKey }}</span>
+      {{ key.virtualKey }}
     </div>
   </div>
 </div>
