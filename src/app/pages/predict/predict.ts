@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +8,8 @@ import { WorkflowService } from '../../common/services/workflow.service';
 import { PredictLayoutService } from '../services/predict-layout.service';
 import { LayoutView } from "../../common/components/layout-view/layout-view";
 import { KeyMapping } from '../../models/key-mapping';
+import { OptionDataService } from '../services/option-data-service';
+import { OptionData } from '../../models/option-data';
 
 @Component({
   selector: 'app-predict',
@@ -24,22 +26,30 @@ import { KeyMapping } from '../../models/key-mapping';
   templateUrl: './predict.html',
   styleUrls: ['./predict.scss'],
 })
-export class Predict {
+export class Predict implements OnInit {
 
   startQwerty: boolean = true;
   steps: number = 300;
   loading: boolean = false;
-  score: number | null = null;     // remove later if score isn't needed
+  score: number | null = null;
   layout: string = '';
   mapping: any = null;
 
+  updatedKeymap = signal<KeyMapping[]>([]);
+
   constructor(
     private predictService: PredictLayoutService,
+    private optionDataService: OptionDataService,
     private cd: ChangeDetectorRef,
     private workflowService: WorkflowService
   ) {}
 
-  updatedKeymap = signal<KeyMapping[]>([]);  // 🔥 SIGNAL CREATED
+  ngOnInit(): void {
+    // 🔹 Simulate retrieving modified OptionData from API
+    this.optionDataService.getModifiedOptionData().subscribe((data: OptionData[]) => {
+      console.log('🔥 Retrieved OptionData from simulated API:', data);
+    });
+  }
 
   generate() {
     this.loading = true;
