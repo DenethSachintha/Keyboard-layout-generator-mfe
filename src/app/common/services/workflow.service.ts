@@ -1,21 +1,16 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { KeyMapping } from '../../models/key-mapping';
+import { ParsedLayout } from '../../models/parsed-layout';
+import { OptionItem } from '../../models/option-item';
 
-export interface ParsedLayout {
-  top: string;
-  home: string;
-  bottom: string;
-}
+
+// workflow.service.ts
 
 @Injectable({
   providedIn: 'root',
 })
 export class WorkflowService {
-
-  // --------------------------
-  // Store parsed layout rows
-  // --------------------------
   private layoutSubject = new BehaviorSubject<ParsedLayout>({
     top: '',
     home: '',
@@ -23,15 +18,16 @@ export class WorkflowService {
   });
   layout$ = this.layoutSubject.asObservable();
 
-  // --------------------------
-  // Store full keymap
-  // --------------------------
   private keymapSubject = new BehaviorSubject<KeyMapping[]>([]);
   keymap$ = this.keymapSubject.asObservable();
 
+  // NEW: Store selected style options
+  private selectedOptionsSubject = new BehaviorSubject<OptionItem[]>([]);
+  selectedOptions$ = this.selectedOptionsSubject.asObservable();
+
   constructor() {}
 
-  // Store parsed layout rows
+  // -------------- LAYOUT -----------------
   setLayout(layout: ParsedLayout) {
     this.layoutSubject.next(layout);
   }
@@ -40,12 +36,21 @@ export class WorkflowService {
     return this.layoutSubject.value;
   }
 
-  // Store updated keymap
+  // -------------- KEYMAP -----------------
   setKeymap(mapping: KeyMapping[]) {
     this.keymapSubject.next(mapping);
   }
 
   getCurrentKeymap(): KeyMapping[] {
     return this.keymapSubject.value;
+  }
+
+  // -------------- STYLE OPTIONS -----------------
+  setSelectedStyleOptions(options: OptionItem[]) {
+    this.selectedOptionsSubject.next(options);
+  }
+
+  getSelectedStyleOptions(): OptionItem[] {
+    return this.selectedOptionsSubject.value;
   }
 }

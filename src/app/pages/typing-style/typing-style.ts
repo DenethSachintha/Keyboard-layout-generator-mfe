@@ -4,146 +4,185 @@ import { CommonModule } from '@angular/common';
 import { ImportsModule } from '../../imports';
 import { OptionItem } from '../../models/option-item';
 import { StyleOptionService } from '../services/style-option-service';
+import { WorkflowService } from '../../common/services/workflow.service';
 
 @Component({
   selector: 'app-typing-style',
   standalone: true,
   imports: [CommonModule, FormsModule, ImportsModule],
   templateUrl: './typing-style.html',
-  styleUrls: ['./typing-style.scss']
+  styleUrls: ['./typing-style.scss'],
 })
-export class TypingStyle implements OnInit{
-
+export class TypingStyle implements OnInit {
   allOptions: OptionItem[] = [];
-  isLoading: boolean = true;
   visibleOptions: OptionItem[] = [];
   selectedOptions: OptionItem[] = [];
   activeRelated: Set<number> = new Set();
+  isLoading = true;
 
-constructor(
-  private styleOptionService: StyleOptionService,
-  private cdr: ChangeDetectorRef
-) {}
-ngOnInit(): void {
-  this.loadOptionsFromApi();
-}
-loadOptionsFromApi() {
-  this.styleOptionService.getAllOptions().subscribe({
-    next: (options) => {
+  constructor(
+    private styleOptionService: StyleOptionService,
+    private workflow: WorkflowService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-      this.allOptions = options.map(o => ({ ...o, model: false }));
-      this.allOptions = [...this.allOptions];
-
-      this.initializeVisibleOptions();
-
-      console.log('Loaded options:', this.allOptions);
-
-      /** 🔥 Force Angular to detect UI changes */
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Failed to load options:', err);
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }
-  });
-}
-
-  /** Hide ALL related options at startup */
-  initializeVisibleOptions() {
-    const relatedIds = new Set<number>();
-
-    this.allOptions.forEach(o =>
-      o.relatedIds.forEach(id => relatedIds.add(id))
-    );
-
-    // Only include non-related root options
-    this.visibleOptions = this.allOptions.filter(o => !relatedIds.has(o.id));
-
-    // Force Angular render
-    this.visibleOptions = [...this.visibleOptions];
-
-    this.isLoading = false;
+  ngOnInit(): void {
+    this.loadOptions();
   }
 
-  /** Toggle logic */
+  /** -------------------------------
+   *  LOAD + RESTORE SAVED STATE
+   * ------------------------------- */
+  loadOptions() {
+    this.styleOptionService.getAllOptions().subscribe({
+      next: (options) => {
+        this.allOptions = options.map((o) => ({ ...o, model: false }));
+        console.log('Loaded style options:', this.allOptions);
+
+        /** Restore previously selected */
+        const saved = this.workflow.getSelectedStyleOptions() ?? [];
+
+        saved.forEach((sItem) => {
+          const opt = this.allOptions.find((o) => o.id === sItem.id);
+          if (opt) {
+            opt.model = true;
+            this.selectedOptions.push(opt);
+            opt.relatedIds.forEach((id) => this.activeRelated.add(id));
+          }
+        });
+
+        /** Initial visibility = ONLY ROOT, no children */
+        this.initializeRootVisibility();
+
+        /** And then add restored children */
+        this.appendActiveChildren();
+
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  /** -------------------------------
+   *  STEP 1 — HIDE ALL RELATED ITEMS
+   * ------------------------------- */
+  initializeRootVisibility() {
+    const relatedIds = new Set<number>();
+    this.allOptions.forEach((o) => o.relatedIds.forEach((id) => relatedIds.add(id)));
+
+    // show only root items
+    this.visibleOptions = this.allOptions.filter((o) => !relatedIds.has(o.id));
+  }
+
+  /** Add already-active related items (from restored state) */
+  appendActiveChildren() {
+    this.activeRelated.forEach((id) => {
+      const child = this.allOptions.find((o) => o.id === id);
+      if (child && !this.visibleOptions.some((v) => v.id === child.id)) {
+        this.visibleOptions.push(child);
+      }
+    });
+  }
+
+  /** -------------------------------
+   *  ON USER TOGGLE
+   * ------------------------------- */
   onToggle(option: OptionItem) {
     if (option.model) {
-      this.selectOption(option);
+      this.handleSelect(option);
     } else {
-      this.unselectOption(option);
+      this.handleUnselect(option);
     }
   }
 
-  /** Select an option */
-  selectOption(option: OptionItem) {
-    if (!this.selectedOptions.some(o => o.id === option.id)) {
+  /** SELECT */
+  handleSelect(option: OptionItem) {
+    if (!this.selectedOptions.some((o) => o.id === option.id)) {
       this.selectedOptions.push(option);
     }
 
-    // Hide other items in the same category
+    this.workflow.setSelectedStyleOptions([...this.selectedOptions]);
+
+    // hide other items in the same category
     this.visibleOptions = this.visibleOptions.filter(
-      o => o.categoryId !== option.categoryId || o.id === option.id
+      (o) => o.categoryId !== option.categoryId || o.id === option.id
     );
 
-    // Show related children (NOT selected)
-    option.relatedIds.forEach(id => this.activeRelated.add(id));
-
-    this.updateVisibleOptions();
+    console.log('Related IDs to show:', option.relatedIds);
+    // show related children
+    option.relatedIds.forEach((id) => this.activeRelated.add(id));
+    console.log('Active related IDs:', Array.from(this.activeRelated));
+    this.refreshVisible();
   }
 
-  /** Unselect option */
-  unselectOption(option: OptionItem) {
+  /** UNSELECT */
+  handleUnselect(option: OptionItem) {
     option.model = false;
 
-    this.selectedOptions = this.selectedOptions.filter(o => o.id !== option.id);
+    this.selectedOptions = this.selectedOptions.filter((o) => o.id !== option.id);
+    this.workflow.setSelectedStyleOptions([...this.selectedOptions]);
 
-    option.relatedIds.forEach(id => this.activeRelated.delete(id));
+    option.relatedIds.forEach((id) => this.activeRelated.delete(id));
 
-    const stillHasSelected = this.selectedOptions.some(o => o.categoryId === option.categoryId);
+    const categoryStillSelected = this.selectedOptions.some(
+      (o) => o.categoryId === option.categoryId
+    );
 
-    if (!stillHasSelected) {
-      const group = this.allOptions.filter(o => o.categoryId === option.categoryId);
-
-      group.forEach(o => {
-        if (!this.visibleOptions.some(v => v.id === o.id)) {
-          this.visibleOptions.push({ ...o, model: false });
+    // if the category has no selected item → restore root options in that category
+    if (!categoryStillSelected) {
+      const categoryOptions = this.allOptions.filter((o) => o.categoryId === option.categoryId);
+      categoryOptions.forEach((o) => {
+        if (!this.visibleOptions.some((v) => v.id === o.id)) {
+          this.visibleOptions.push(o);
         }
       });
     }
 
-    this.updateVisibleOptions();
+    this.refreshVisible();
   }
 
-  /** Control final visibility set */
-  updateVisibleOptions() {
-    const baseVisible = new Set<number>();
+  /** -------------------------------
+   *  FINAL VISIBILITY FILTER
+   * ------------------------------- */
+  refreshVisible() {
+    const allowedIds = new Set<number>();
 
-    this.selectedOptions.forEach(s => baseVisible.add(s.id));
-    this.activeRelated.forEach(id => baseVisible.add(id));
+    /** 1. Build full set of IDs that are related children anywhere */
+    const globalRelatedIds = new Set<number>();
+    this.allOptions.forEach((o) => o.relatedIds.forEach((id) => globalRelatedIds.add(id)));
 
-    // Show normal category items that are not restricted
-    this.allOptions.forEach(opt => {
-      const anySelectedInCat = this.selectedOptions.some(s => s.categoryId === opt.categoryId);
+    /** 2. Add selected parent items */
+    this.selectedOptions.forEach((o) => allowedIds.add(o.id));
 
-      if (!anySelectedInCat && !this.activeRelated.has(opt.id)) {
-        // This is a root category item
-        baseVisible.add(opt.id);
+    /** 3. Add only active related children */
+    this.activeRelated.forEach((id) => allowedIds.add(id));
+
+    /** 4. Add ROOT items ONLY from categories with no selected parent */
+    this.allOptions.forEach((opt) => {
+      const categoryHasSelected = this.selectedOptions.some((s) => s.categoryId === opt.categoryId);
+
+      const isRoot = !globalRelatedIds.has(opt.id);
+      const isActiveChild = this.activeRelated.has(opt.id);
+
+      if (!categoryHasSelected && isRoot && !isActiveChild) {
+        allowedIds.add(opt.id);
       }
     });
 
-    // Convert to visibleOptions
-    this.visibleOptions = this.allOptions
-      .filter(o => baseVisible.has(o.id))
-      .map(o => ({ ...o, model: o.model }));
+    /** 5. Final filter */
+    this.visibleOptions = this.allOptions.filter((o) => allowedIds.has(o.id));
   }
 
-  /** Chip unselect */
+  /** Chip remove */
   unselectByChip(opt: OptionItem) {
-    const real = this.allOptions.find(o => o.id === opt.id);
+    const real = this.allOptions.find((o) => o.id === opt.id);
     if (real) {
       real.model = false;
-      this.unselectOption(real);
+      this.handleUnselect(real);
     }
   }
 }
