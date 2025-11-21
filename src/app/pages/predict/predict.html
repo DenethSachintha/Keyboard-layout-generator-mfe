@@ -1,6 +1,13 @@
-<div class="predict-container">
+<div class="text-center mb-4 text-xl font-semibold">Keyboard Layout Generator</div>
 
-  <h1>Keyboard Layout Generator</h1>
+<div class="predict-container">
+<div class="chip-row" *ngIf="selectedOptions.length">
+    <p-chip
+        *ngFor="let item of selectedOptions"
+        [label]="item.name"
+        class="chip selected-chip">
+    </p-chip>
+  </div>
 
   <div class="controls">
 
