@@ -1,17 +1,15 @@
-<div class="keyboard-container flex flex-col gap-2 p-4 justify-center items-center">
-  <div *ngFor="let row of keyboardRows(); let rowIndex = index" class="keyboard-row flex gap-2 justify-center">
-    <div
-      *ngFor="let key of row; let keyIndex = index; trackBy: trackById"
-      class="key p-2 rounded border text-center cursor-move"
-      draggable="true"
-      (dragstart)="onDragStart($event, flatIndex(rowIndex, keyIndex))"
-      (dragover)="onDragOver($event)"
-      (dragenter)="onDragEnter($event, flatIndex(rowIndex, keyIndex))"
-      (drop)="onDrop($event, flatIndex(rowIndex, keyIndex))"
-      (dragend)="onDragEnd()"
-      [attr.data-key]="key.id" 
-    >
-      {{ key.virtualKey }}
+<div class="flex flex-col justify-center items-center">
+  <div class="text-center mb-4 text-xl font-semibold">Customize Keyboard Layout</div>
+
+  <div class="keyboard-container gap-2 p-4 justify-center items-center">
+    <div *ngFor="let row of keyboardRows(); let rowIndex = index" class="keyboard-row flex gap-2 justify-center">
+      <div *ngFor="let key of row; let keyIndex = index; trackBy: trackById"
+        class="key p-2 rounded border text-center cursor-move bg-surface-100 text-surface-700 dark:text-surface-200 dark:bg-surface-800 dark:text-surface-200"
+        draggable="true" (dragstart)="onDragStart($event, flatIndex(rowIndex, keyIndex))"
+        (dragover)="onDragOver($event)" (dragenter)="onDragEnter($event, flatIndex(rowIndex, keyIndex))"
+        (drop)="onDrop($event, flatIndex(rowIndex, keyIndex))" (dragend)="onDragEnd()" [attr.data-key]="key.id">
+        {{ key.virtualKey }}
+      </div>
     </div>
   </div>
 </div>

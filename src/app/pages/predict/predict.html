@@ -1,11 +1,8 @@
-<div class="text-center mb-4 text-xl font-semibold">Keyboard Layout Generator</div>
+<div class="text-center mb-4 text-xl font-semibold">Predict Keyboard Layout</div>
 
 <div class="predict-container">
-<div class="chip-row" *ngIf="selectedOptions.length">
-    <p-chip
-        *ngFor="let item of selectedOptions"
-        [label]="item.name"
-        class="chip selected-chip">
+  <div class="chip-row" *ngIf="selectedOptions.length">
+    <p-chip *ngFor="let item of selectedOptions" [label]="item.name" class="chip selected-chip">
     </p-chip>
   </div>
 
@@ -14,49 +11,38 @@
     <!-- Radio buttons for Start QWERTY -->
     <div class="flex items-center gap-4 mb-4">
       <div class="flex items-center">
-        <p-radiobutton
-          name="startLayout"
-          value="true"
-          [(ngModel)]="startQwerty"
-          [binary]="true"
-          inputId="startQwertyYes">
+        <p-radiobutton name="startLayout" [value]="true" [(ngModel)]="startQwerty" inputId="startQwertyYes">
         </p-radiobutton>
         <label for="startQwertyYes" class="ml-2">Start from QWERTY</label>
       </div>
 
       <div class="flex items-center">
-        <p-radiobutton
-          name="startLayout"
-          value="false"
-          [(ngModel)]="startQwerty"
-          [binary]="true"
-          inputId="startQwertyNo">
+        <p-radiobutton name="startLayout" [value]="false" [(ngModel)]="startQwerty" inputId="startQwertyNo">
         </p-radiobutton>
         <label for="startQwertyNo" class="ml-2">Custom Start</label>
       </div>
     </div>
 
+
     <!-- Steps input -->
-    <div class="steps-input mb-4">
+    <div class="steps-input mb-4" style="display: none;">
       <label>Steps:</label>
       <p-inputNumber [(ngModel)]="steps" [min]="50" [max]="1000"></p-inputNumber>
     </div>
 
-    <button pButton
-            label="Generate Layout"
-            (click)="generate()"
-            [loading]="loading"
-            class="generate-btn">
+    <button pButton label="Generate Layout" (click)="generate()" [loading]="loading" class="generate-btn">
     </button>
 
   </div>
 
-  <div class="results" *ngIf="layout">
+  <!--   <div class="results" *ngIf="layout">
     <h2>Optimized Layout</h2>
     <pre class="layout-box">{{ layout }}</pre>
     <p class="score-text">Score: <span>{{ score }}</span></p>
-  </div>
+  </div> -->
   @if (updatedKeymap().length) {
+  <div class="flex flex-col justify-center items-center">
     <app-layout-view [keyMapping]="updatedKeymap"></app-layout-view>
+  </div>
   }
 </div>
