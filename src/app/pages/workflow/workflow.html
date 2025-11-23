@@ -9,11 +9,16 @@
     <p-step-panels>
         <p-step-panel [value]="1">
             <ng-template #content let-activateCallback="activateCallback">
-                <div class="card">
-                    <app-typing-style></app-typing-style>
-                    <div class="flex pt-6 justify-end">
-                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                            (onClick)="activateCallback(2)" />
+                <div class="card flex justify-center items-start" style="height: calc(100vh - 15rem);">
+                    <div class="w-full max-w-[850px] flex flex-col justify-between h-full">
+                        <div>
+                            <app-typing-style></app-typing-style>
+                        </div>
+                        <div class="flex pt-6 justify-end">
+                            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                                (onClick)="activateCallback(2)" />
+                        </div>
+
                     </div>
                 </div>
             </ng-template>
@@ -21,38 +26,63 @@
 
         <p-step-panel [value]="2">
             <ng-template #content let-activateCallback="activateCallback">
-                <div class="card">
-                    <app-predict></app-predict>
-                    <div class="flex justify-between">
-                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left"
-                            (onClick)="activateCallback(1)" />
-                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                            (onClick)="activateCallback(3)" />
+                <div class="card flex justify-center items-start" style="height: calc(100vh - 15rem);">
+                    <div class="w-full max-w-[850px] flex flex-col justify-between h-full">
+
+                        <!-- TOP CONTENT -->
+                        <div>
+                            <app-predict></app-predict>
+                        </div>
+
+                        <!-- BOTTOM BUTTONS -->
+                        <div class="flex justify-between pt-6">
+                            <p-button label="Back" severity="secondary" icon="pi pi-arrow-left"
+                                (onClick)="activateCallback(1)" />
+                            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                                (onClick)="activateCallback(3)" />
+                        </div>
+
                     </div>
                 </div>
             </ng-template>
         </p-step-panel>
-
         <p-step-panel [value]="3">
             <ng-template #content let-activateCallback="activateCallback">
-                <div class="card">
-                    <app-customize></app-customize>
-                    <div class="flex pt-6 justify-between">
-                        <p-button label="Back" severity="secondary" icon="pi pi-arrow-left"
-                            (onClick)="activateCallback(2)" />
-                        <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
-                            (onClick)="activateCallback(4)" />
+                <div class="card flex justify-center items-start" style="height: calc(100vh - 15rem);">
+                    <div class="w-full max-w-[850px] flex flex-col justify-between h-full">
+
+                        <!-- TOP CONTENT -->
+                        <div>
+                            <app-customize></app-customize>
+                        </div>
+
+                        <!-- BOTTOM BUTTONS -->
+                        <div class="flex pt-6 justify-between">
+                            <p-button label="Back" severity="secondary" icon="pi pi-arrow-left"
+                                (onClick)="activateCallback(2)" />
+                            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+                                (onClick)="activateCallback(4)" />
+                        </div>
+
                     </div>
                 </div>
             </ng-template>
         </p-step-panel>
         <p-step-panel [value]="4">
             <ng-template #content let-activateCallback="activateCallback">
-                <div class="card">
-                    <app-generate></app-generate>
-                    <div class="flex pt-6 justify-start">
-                        <p-button label="Back" icon="pi pi-arrow-left" iconPos="right"
-                            (onClick)="activateCallback(3)" />
+                <div class="card flex justify-center items-start" style="height: calc(100vh - 15rem);">
+                    <div class="w-full max-w-[850px] flex flex-col justify-between h-full">
+
+                        <!-- TOP CONTENT -->
+                        <div>
+                            <app-generate></app-generate>
+                        </div>
+
+                        <!-- BOTTOM BUTTONS -->
+                        <div class="flex pt-6 justify-start">
+                            <p-button label="Back" icon="pi pi-arrow-left" iconPos="right"
+                                (onClick)="activateCallback(3)" />
+                        </div>
                     </div>
                 </div>
             </ng-template>

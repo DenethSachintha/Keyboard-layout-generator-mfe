@@ -2,15 +2,111 @@
   <div class="text-center mb-4 text-xl font-semibold">Generate Keyboard EXE</div>
 
   @if (keyMapping().length) {
-    <app-layout-view [keyMapping]="keyMapping"></app-layout-view>
-    <button
-      class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      (click)="onGenerateDLL()">
-      Generate DLL
-    </button>
-    <button (click)="generateExecutable()"
-            class="bg-blue-600 text-white px-4 py-2 rounded">
-      Generate EXE File
-    </button>
+  <app-layout-view [keyMapping]="keyMapping"></app-layout-view>
+
+
+  <div class="card flex justify-center">
+    <p-button
+      label="Create Layout"
+      class="focus-target"
+      (click)="showDialog()">
+    </p-button>
+
+    <p-dialog
+      [(visible)]="visible"
+      [modal]="true"
+      appendTo="body"
+      (onHide)="onDialogClose()"
+      [style]="{ width: '32rem' }"
+    >
+      <!-- ================= HEADER ================= -->
+      <ng-template #header>
+        <h2 class="text-xl font-semibold w-full text-center">
+          {{ step === 1 ? 'Confirm Layout Creation'
+          : step === 2 ? 'Generating Libraries'
+          : step === 3 ? 'Generating EXE File'
+          : 'Success!' }}
+        </h2>
+      </ng-template>
+
+      <!-- ================= CONTENT ================= -->
+      <div class="p-5 text-center">
+
+        <!-- ---- STEP 1 ---- -->
+        <div *ngIf="step === 1" class="text-center">
+          <p class="mb-4 text-gray-600">
+            This process will generate DLL and EXE automatically.
+          </p>
+          <p-progressbar mode="indeterminate" [style]="{ height: '6px' }"></p-progressbar>
+        </div>
+
+        <!-- ---- STEP 2 ---- -->
+        <div *ngIf="step === 2" class="text-center">
+          <p class="mt-3 mb-4 text-gray-600">Please wait 2 more Seconds...</p>
+
+          <p-progress-spinner ariaLabel="loading" />
+          <div class="mt-3">
+            <p-progressbar [value]="20"></p-progressbar>
+          </div>
+        </div>
+
+        <!-- ---- STEP 3 ---- -->
+        <div *ngIf="step === 3" class="text-center">
+          <p class="mt-3 mb-4 text-gray-600">Please wait 2 more Seconds...</p>
+
+          <p-progress-spinner ariaLabel="loading" />
+          <div class="mt-3">
+            <p-progressbar [value]="60"></p-progressbar>
+          </div>
+        </div>
+
+        <!-- ---- STEP 4 ---- -->
+        <div *ngIf="step === 4" class="text-center justify-center items-center" style="max-width: 320px;">
+          <div class="text-center">
+            <h3 class="text-green-600 font-semibold mb-4">Your files are ready to Install</h3>
+          </div>
+          <div class="space-y-2 text-center items-center" style="max-width: 320px;">
+            <div style="max-width: 320px;">
+              <p class="text-surface-700 dark:text-surface-200 flex items-center gap-3">
+                <i class="pi pi-check-circle text-green-600"></i>
+                The EXE file has already been Generated.
+              </p>
+
+              <p class="text-surface-700 dark:text-surface-200 flex items-center gap-3">
+                <i class="pi pi-check-circle text-green-600"></i>
+                The EXE file has already been downloaded.
+              </p>
+              <p class="text-surface-700 dark:text-surface-200 flex items-center gap-3">
+                <i class="pi pi-check-circle text-orange-600"></i>
+                The Restart System After installation.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= FOOTER ================= -->
+      <ng-template #footer>
+        <!-- Step 1: Confirm / Cancel -->
+        <div *ngIf="step === 1" class="flex justify-end gap-3 w-full">
+          <!-- Indeterminate progress bar -->
+          <p-button label="Cancel" severity="secondary" [text]="true" (click)="closeDialog()" />
+          <p-button label="Confirm" severity="success" (click)="startProcess()" />
+        </div>
+        <div *ngIf="step === 2" class="flex justify-center w-full">
+
+        </div>
+        <div *ngIf="step === 3" class="flex justify-center w-full">
+
+        </div>
+        <!-- Step 4: Final close -->
+        <div *ngIf="step === 4" class="flex justify-center w-full">
+          <p-button label="Done" severity="success" (click)="closeDialog()" />
+        </div>
+      </ng-template>
+    </p-dialog>
+  </div>
+
   }
 </div>
