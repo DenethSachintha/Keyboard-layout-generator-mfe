@@ -19,6 +19,10 @@ export class HttpService {
     });
   }
 
+  postBlob(url: string, body: any): Observable<Blob> {
+    return this.http.post(url, body, { responseType: 'blob' });
+  }
+
   put<T>(url: string, body: any): Observable<T> {
     return this.http.put<T>(url, body, {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

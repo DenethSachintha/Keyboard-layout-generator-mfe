@@ -29,7 +29,7 @@ export class LayoutView implements OnInit {
       const keys = this.keyMapping();
       if (keys.length > 0) {
         this.processKeyMapping(keys);
-        console.log('🔄 Reactive keyMapping update detected in child:', keys);
+        //console.log('🔄 Reactive keyMapping update detected in child:', keys);
       }
     });
   }
@@ -37,7 +37,7 @@ export class LayoutView implements OnInit {
   ngOnInit(): void {
     if (this.keyMapping().length) {
       this.processKeyMapping(this.keyMapping());
-      console.log('✅ Processing keyMapping on init:', this.keyMapping());
+      //console.log('✅ Processing keyMapping on init:', this.keyMapping());
     }
   }
 

@@ -9,7 +9,7 @@ import { WorkflowService } from '../../common/services/workflow.service';
 })
 export class PredictLayoutService {
 
-  private apiUrl = "http://127.0.0.1:5000/api/generate_layout";
+  private apiUrl = "http://127.0.0.1:5001/api/generate_layout";
 
   constructor(
     private http: HttpService,

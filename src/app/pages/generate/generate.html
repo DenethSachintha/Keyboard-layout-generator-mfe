@@ -1,1 +1,16 @@
-<p>generate works!</p>
+<div class="flex flex-col justify-center items-center">
+  <div class="text-center mb-4 text-xl font-semibold">Generate Keyboard EXE</div>
+
+  @if (keyMapping().length) {
+    <app-layout-view [keyMapping]="keyMapping"></app-layout-view>
+    <button
+      class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      (click)="onGenerateDLL()">
+      Generate DLL
+    </button>
+    <button (click)="generateExecutable()"
+            class="bg-blue-600 text-white px-4 py-2 rounded">
+      Generate EXE File
+    </button>
+  }
+</div>

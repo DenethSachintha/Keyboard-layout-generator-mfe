@@ -1,17 +1,13 @@
 import { Component, signal, OnInit, computed } from '@angular/core';
 import { ImportsModule } from '../../imports';
 import { WorkflowService } from '../../common/services/workflow.service';
-
-export interface KeyMapping {
-  id: number;
-  systemKey: string;
-  virtualKey: string;
-}
+import { CommonModule } from '@angular/common';
+import { KeyMapping } from '../../models/key-mapping';
 
 @Component({
   selector: 'app-customize',
   standalone: true,
-  imports: [ImportsModule],
+  imports: [ImportsModule,CommonModule],
   templateUrl: './customize.html',
   styleUrl: './customize.scss'
 })
@@ -72,17 +68,28 @@ export class Customize implements OnInit {
   }
 
   onDrop(event: DragEvent, dropIndex: number) {
-    event.preventDefault();
-    const fromIndex = this.draggingKeyIndex;
-    if (fromIndex === null || fromIndex === dropIndex) return;
+  event.preventDefault();
 
-    const keys = [...this.keyMapping()];
-    [keys[fromIndex], keys[dropIndex]] = [keys[dropIndex], keys[fromIndex]];
-    this.keyMapping.set(keys);
+  const fromIndex = this.draggingKeyIndex;
+  if (fromIndex === null || fromIndex === dropIndex) return;
 
-    console.log('Dropped keys:', keys);
-    this.draggingKeyIndex = null;
-  }
+  // Create a copy
+  const keys = [...this.keyMapping()];
+
+  // Swap
+  [keys[fromIndex], keys[dropIndex]] = [keys[dropIndex], keys[fromIndex]];
+
+  // Update local signal
+  this.keyMapping.set(keys);
+
+  // 🔥 Update WorkflowService with new drag result
+  this.workflow.updateKeymapByDragDrop(keys);
+
+  console.log('Dropped keys:', keys);
+
+  this.draggingKeyIndex = null;
+}
+
 
   onDragEnd() {
     this.draggingKeyIndex = null;

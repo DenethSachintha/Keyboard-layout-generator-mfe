@@ -21,13 +21,17 @@ export class WorkflowService {
   private keymapSubject = new BehaviorSubject<KeyMapping[]>([]);
   keymap$ = this.keymapSubject.asObservable();
 
+  // NEW 🔥: Subject for drag/drop updates
+  private keymapCustomSubject = new BehaviorSubject<KeyMapping[]>([]);
+  keymapCustom$ = this.keymapCustomSubject.asObservable();
+
   // NEW: Store selected style options
   private selectedOptionsSubject = new BehaviorSubject<OptionItem[]>([]);
   selectedOptions$ = this.selectedOptionsSubject.asObservable();
 
   constructor() {}
 
-  // -------------- LAYOUT -----------------
+  // ------------------- LAYOUT -------------------
   setLayout(layout: ParsedLayout) {
     this.layoutSubject.next(layout);
   }
@@ -36,7 +40,7 @@ export class WorkflowService {
     return this.layoutSubject.value;
   }
 
-  // -------------- KEYMAP -----------------
+  // ------------------- KEYMAP (from model) -------------------
   setKeymap(mapping: KeyMapping[]) {
     this.keymapSubject.next(mapping);
   }
@@ -45,7 +49,16 @@ export class WorkflowService {
     return this.keymapSubject.value;
   }
 
-  // -------------- STYLE OPTIONS -----------------
+  // ------------------- KEYMAP from drag/drop 🔥 -------------------
+  updateKeymapByDragDrop(newMapping: KeyMapping[]) {
+    this.keymapCustomSubject.next(newMapping);
+  }
+
+  getCurrentDraggedKeymap(): KeyMapping[] {
+    return this.keymapCustomSubject.value;
+  }
+
+  // ------------------- STYLE OPTIONS -------------------
   setSelectedStyleOptions(options: OptionItem[]) {
     this.selectedOptionsSubject.next(options);
   }
