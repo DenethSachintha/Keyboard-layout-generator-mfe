@@ -1,56 +1,29 @@
-.chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.predict-container {
-  margin: 0 auto;
-  padding: 15px;
-  background: var(--surface-card);
-  border-radius: 10px;
-}
-
 .controls {
   background: var(--surface-ground);
   border-radius: 10px;
   margin-bottom: 20px;
+
   display: flex;
-  gap: 20px;
+  justify-content: space-between; /* left + right */
   align-items: center;
+
+  padding: 10px 15px;
 }
 
-.label {
-  margin-left: 5px;
-}
-
-.steps-input {
+/* Left section: chips + radios */
+.control-left {
   display: flex;
-  align-items: center;
+  flex-direction: column; /* stack chips + radios */
   gap: 10px;
 }
 
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Right button */
 .generate-btn {
-  margin-left: auto;
-}
-
-.results {
-  background: var(--surface-100);
-  padding: 15px;
-  border-radius: 10px;
-}
-
-.layout-box {
-  background: #1e1e1e;
-  color: #00ff9c;
-  padding: 15px;
-  border-radius: 5px;
-  white-space: pre-wrap;
-}
-
-.score-text {
-  font-size: 18px;
-  margin-top: 10px;
+  margin-left: auto; /* push to right */
 }
