@@ -1,28 +1,32 @@
 <div class="text-center mb-4 text-xl font-semibold">Choose your interests</div>
 
-<div class="flex flex-wrap justify-center gap-4">
+<div class="flex flex-wrap justify-center gap-4 w-full">
 
     <!-- Selected Chips -->
-    <div class="chip-row" *ngIf="selectedOptions.length">
-        <p-chip
-            *ngFor="let item of selectedOptions"
-            [label]="item.name"
-            removable="true"
-            (onRemove)="unselectByChip(item)"
-            class="chip selected-chip">
-        </p-chip>
+    <div class="min-h-[2.5rem] my-3 w-full flex justify-center items-center">
+        <div class="flex flex-wrap justify-center items-center gap-2" *ngIf="selectedOptions.length">
+            <p-chip
+                *ngFor="let item of selectedOptions"
+                [label]="item.name"
+                removable="true"
+                (onRemove)="unselectByChip(item)"
+                class="chip selected-chip">
+            </p-chip>
+        </div>
     </div>
 
-    <!-- Root + Visible Children -->
-    <div class="options-grid" *ngIf="!isLoading">
-        <p-toggleButton
-            *ngFor="let option of visibleOptions"
-            [(ngModel)]="option.model"
-            [onLabel]="option.name"
-            [offLabel]="option.name"
-            class="toggle"
-            (onChange)="onToggle(option)">
-        </p-toggleButton>
+    <!-- Options -->
+    <div class="flex flex-col gap-2 h-[10rem] mx-auto">
+        <div class="flex flex-wrap justify-center gap-4" *ngIf="!isLoading">
+            <p-toggleButton
+                *ngFor="let option of visibleOptions"
+                [(ngModel)]="option.model"
+                [onLabel]="option.name"
+                [offLabel]="option.name"
+                class="toggle"
+                (onChange)="onToggle(option)">
+            </p-toggleButton>
+        </div>
     </div>
 
 </div>
